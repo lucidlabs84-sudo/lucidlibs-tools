@@ -12,8 +12,20 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const typedArray = new Uint8Array(arrayBuffer);
 
-    const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
-    const doc = await pdfjs.getDocument({ data: typedArray }).promise;
+    // Use min build (non-legacy) to avoid worker bundling issues with Turbopack
+    const pdfjs = await import("pdfjs-dist/build/pdf.min.mjs");
+
+    // Disable Web Worker — process PDF on the main thread
+    // Required for Next.js API routes where worker bundling is unreliable
+    pdfjs.GlobalWorkerOptions.workerSrc = "";
+    pdfjs.GlobalWorkerOptions.workerPort = null;
+
+    const doc = await pdfjs.getDocument({
+      data: typedArray,
+      disableWorker: true,
+      useWorkerFetch: false,
+      useSystemFonts: true,
+    } as Record<string, unknown>).promise;
 
     const lines: string[] = [];
     for (let i = 1; i <= doc.numPages; i++) {
