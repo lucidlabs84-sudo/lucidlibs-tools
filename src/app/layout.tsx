@@ -33,7 +33,7 @@ export default function RootLayout({
           {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-89197XEV14');`}
         </Script>
       </head>
-      <body className="min-h-full bg-slate-50 text-gray-900">
+      <body className="min-h-full">
         {children}
       </body>
     </html>

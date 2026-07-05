@@ -1,9 +1,264 @@
 @import "tailwindcss";
 
+/* ═══════════════════════════════════════════════════════════════
+   VERCEL DESIGN SYSTEM
+   Source: DESIGN-vercel.md (awesome-design-md)
+   Near-white canvas, ink-black text, Geist family, mesh gradient
+   ═══════════════════════════════════════════════════════════════ */
+
 :root {
-  --amber-500: #f59e0b;
+  /* ── Surface ── */
+  --canvas:          #ffffff;
+  --canvas-soft:     #fafafa;
+  --canvas-soft-2:   #f5f5f5;
+
+  /* ── Borders ── */
+  --hairline:        #ebebeb;
+  --hairline-strong: #a1a1a1;
+
+  /* ── Text ── */
+  --ink:             #171717;
+  --body:            #4d4d4d;
+  --mute:            #888888;
+  --on-primary:      #ffffff;
+
+  /* ── Brand / Accent ── */
+  --accent:          #171717;  /* ink = primary CTA black */
+  --accent-hover:    #333333;
+  --link:            #0070f3;
+  --link-deep:       #0761d1;
+  --link-bg-soft:    #d3e5ff;
+
+  /* ── Semantic ── */
+  --success:         #0070f3;
+  --error:           #ee0000;
+  --error-soft:      #f7d4d6;
+  --warning:         #f5a623;
+  --warning-soft:    #ffefcf;
+
+  /* ── Gradient (Vercel signature mesh) ── */
+  --gradient-develop-start: #007cf0;
+  --gradient-develop-end:   #00dfd8;
+  --gradient-preview-start: #7928ca;
+  --gradient-preview-end:   #ff0080;
+  --gradient-ship-start:    #ff4d4d;
+  --gradient-ship-end:      #f9cb28;
+
+  /* ── Shadows (stacked inset style) ── */
+  --shadow-sm:  0 0 0 1px rgba(0,0,0,0.08), 0px 1px 1px rgba(0,0,0,0.02);
+  --shadow-md:  0 0 0 1px rgba(0,0,0,0.08), 0px 2px 2px rgba(0,0,0,0.04);
+  --shadow-lg:  0 0 0 1px rgba(0,0,0,0.08), 0px 8px 16px -4px rgba(0,0,0,0.04);
+  --shadow-xl:  0 0 0 1px rgba(0,0,0,0.05), 0px 8px 16px -4px rgba(0,0,0,0.04), 0px 24px 32px -8px rgba(0,0,0,0.06);
+
+  /* ── Typography (Geist/Inter fallback) ── */
+  --font-sans: 'Inter', 'Geist', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Geist Mono', ui-monospace, monospace;
+
+  /* ── Spacing (4px base) ── */
+  --sp-xxs: 4px; --sp-xs: 8px; --sp-sm: 12px; --sp-md: 16px;
+  --sp-lg: 24px; --sp-xl: 32px; --sp-2xl: 40px; --sp-3xl: 48px;
+  --sp-4xl: 64px; --sp-5xl: 96px;
+
+  /* ── Radius ── */
+  --r-none: 0px; --r-xs: 4px; --r-sm: 6px; --r-md: 8px;
+  --r-lg: 12px; --r-xl: 16px; --r-pill-sm: 64px; --r-pill: 100px; --r-full: 9999px;
 }
 
+/* ── Base ── */
 body {
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  background: var(--canvas-soft);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Focus ring ── */
+*:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+  border-radius: var(--r-xs);
+}
+
+/* ── Display hierarchy (Geist-style negative tracking) ── */
+h1, .display-xl { font-family: var(--font-sans); font-size: 48px; font-weight: 600; line-height: 1; letter-spacing: -2.4px; }
+h2, .display-lg { font-family: var(--font-sans); font-size: 32px; font-weight: 600; line-height: 1.25; letter-spacing: -1.28px; }
+h3, .display-md { font-family: var(--font-sans); font-size: 24px; font-weight: 600; line-height: 1.33; letter-spacing: -0.96px; }
+
+/* ── Motions ── */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in { animation: fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in { animation: none; opacity: 1; transform: none; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BUTTON SYSTEM — Vercel pill style (100px radius marketing)
+   ═══════════════════════════════════════════════════════════════ */
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-xs);
+  background: var(--accent);
+  color: var(--on-primary);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+  padding: 0 var(--sp-sm);
+  border-radius: var(--r-pill);
+  height: 48px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+  text-decoration: none;
+}
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-primary:active { transform: scale(0.98); }
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-xs);
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+  padding: 0 var(--sp-sm);
+  border-radius: var(--r-pill);
+  height: 48px;
+  border: 1px solid var(--hairline);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+.btn-secondary:hover { border-color: var(--hairline-strong); }
+.btn-secondary:active { transform: scale(0.98); }
+
+.btn-sm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-xs);
+  background: var(--accent);
+  color: var(--on-primary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  padding: 0 var(--sp-xs);
+  border-radius: var(--r-pill);
+  height: 32px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.btn-sm:hover { background: var(--accent-hover); }
+
+/* ═══════════════════════════════════════════════════════════════
+   CARD SYSTEM
+   ═══════════════════════════════════════════════════════════════ */
+
+.card-marketing {
+  background: var(--canvas);
+  border-radius: var(--r-md);
+  padding: var(--sp-lg);
+  box-shadow: var(--shadow-sm);
+}
+.card-marketing:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card-soft {
+  background: var(--canvas-soft);
+  border-radius: var(--r-md);
+  padding: var(--sp-lg);
+}
+
+.card-surface {
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  padding: var(--sp-xl);
+  box-shadow: var(--shadow-md);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   INPUT
+   ═══════════════════════════════════════════════════════════════ */
+
+.input-vercel {
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  padding: 0 var(--sp-sm);
+  height: 40px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--hairline);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+.input-vercel:focus { border-color: var(--link); }
+.input-vercel::placeholder { color: var(--mute); }
+
+/* ═══════════════════════════════════════════════════════════════
+   HERO / SECTION BANDS
+   ═══════════════════════════════════════════════════════════════ */
+
+.hero-band {
+  padding: var(--sp-5xl) var(--sp-lg);
+  text-align: center;
+}
+
+.section-band {
+  padding: var(--sp-4xl) var(--sp-lg);
+}
+
+/* Mesh gradient backdrop (Vercel signature) */
+.mesh-gradient {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,124,240,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 20% 30%, rgba(121,40,202,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 40% at 80% 20%, rgba(255,0,128,0.05) 0%, transparent 50%);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BADGES
+   ═══════════════════════════════════════════════════════════════ */
+
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--canvas-soft);
+  color: var(--body);
+  font-size: 12px;
+  font-weight: 400;
+  padding: 0 var(--sp-xs);
+  border-radius: var(--r-full);
+}
+
+.badge-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--link-bg-soft);
+  color: var(--link);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: var(--r-full);
 }
