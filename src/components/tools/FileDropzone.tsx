@@ -109,21 +109,70 @@ export default function FileDropzone({ tool, onBack, messages, commonMessages, e
 
       {!result && (
         <>
-          <div className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-colors ${dragOver ? "border-amber-400 bg-amber-50" : "border-slate-200 bg-white hover:border-amber-300"}`}
-            onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onClick={() => fileInputRef.current?.click()}>
-            <svg className="w-12 h-12 mx-auto mb-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-            </svg>
-            <p className="text-slate-400 mb-1">{messages.dragText}</p>
-            <p className="text-xs text-slate-400 mb-3">{messages.orText}</p>
-            <span className="inline-block bg-amber-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-amber-600 transition-colors">{messages.browseText}</span>
-            <p className="text-xs text-slate-400 mt-3">{messages.maxSize}</p>
+          {/* Dropzone — changes appearance when files are selected */}
+          <div
+            className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${
+              files.length > 0
+                ? "border-amber-400 bg-amber-50/50"
+                : dragOver
+                  ? "border-amber-400 bg-amber-50"
+                  : "border-slate-200 bg-white hover:border-amber-300"
+            }`}
+            onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave}
+            onClick={() => { if (files.length === 0 || multiple) fileInputRef.current?.click(); }}
+          >
+            {files.length === 0 ? (
+              <>
+                <svg className="w-12 h-12 mx-auto mb-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <p className="text-slate-400 mb-1">{messages.dragText}</p>
+                <p className="text-xs text-slate-400 mb-3">{messages.orText}</p>
+                <span className="inline-block bg-amber-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-amber-600 transition-colors">
+                  {messages.browseText}
+                </span>
+                <p className="text-xs text-slate-400 mt-3">{messages.maxSize}</p>
+              </>
+            ) : multiple ? (
+              /* Multiple files: show count + add more */
+              <div className="text-center" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-center gap-2 mb-3">
+                  <svg className="w-8 h-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="font-semibold" style={{ color: "oklch(0.3 0.005 260)" }}>
+                    {messages.fileCount?.replace("{count}", String(files.length)) || `${files.length} files selected`}
+                  </span>
+                </div>
+                <span className="inline-block bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-lg text-sm font-medium hover:border-amber-300 transition-colors">
+                  + Add more files
+                </span>
+              </div>
+            ) : (
+              /* Single file: show filename + change option */
+              <div className="text-center" onClick={(e) => e.stopPropagation()}>
+                <svg className="w-10 h-10 mx-auto mb-2" viewBox="0 0 48 48" fill="none">
+                  <rect x="6" y="4" width="36" height="40" rx="3" fill="#EF4444" />
+                  <text x="24" y="30" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">PDF</text>
+                </svg>
+                <p className="text-sm font-semibold mb-1 break-all px-2" style={{ color: "oklch(0.2 0.005 260)" }}>
+                  {files[0].name}
+                </p>
+                <p className="text-xs mb-3" style={{ color: "oklch(0.5 0.005 260)" }}>
+                  {formatBytes(files[0].size)}
+                </p>
+                <span className="inline-block bg-white border border-slate-200 text-slate-600 px-3 py-1.5 rounded-lg text-xs font-medium hover:border-amber-300 transition-colors cursor-pointer"
+                  onClick={() => fileInputRef.current?.click()}>
+                  Change file
+                </span>
+              </div>
+            )}
           </div>
           <input ref={fileInputRef} type="file" accept={accept} multiple={multiple} onChange={handleInputChange} className="hidden" />
 
+          {/* Multiple files: show sortable list */}
           {multiple && files.length > 0 && (
             <div className="mt-4 space-y-2">
-              <p className="text-sm font-medium text-gray-900">{messages.fileCount?.replace("{count}", String(files.length))}</p>
               {files.map((f, i) => (
                 <div key={`${f.name}-${i}`} className="flex items-center gap-3 bg-white rounded-lg p-3 border border-slate-200">
                   <span className="text-xs text-slate-400 w-6">{i + 1}</span>
@@ -146,8 +195,15 @@ export default function FileDropzone({ tool, onBack, messages, commonMessages, e
       )}
 
       {!result && files.length > 0 && !processing && (
-        <button onClick={handleSubmit} className="mt-6 w-full bg-amber-500 text-white py-3 rounded-xl font-semibold hover:bg-amber-600 transition-colors shadow-md">
-          {multiple ? messages.title : messages.button}
+        <button onClick={handleSubmit} className="mt-4 w-full bg-amber-500 text-white py-3.5 rounded-xl font-semibold hover:bg-amber-600 transition-colors shadow-md active:scale-[0.98] flex items-center justify-center gap-2">
+          {multiple ? (
+            <>{messages.title}</>
+          ) : (
+            <>
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              {messages.button}
+            </>
+          )}
         </button>
       )}
 
