@@ -6,7 +6,7 @@ interface FileDropzoneProps {
   tool: string;
   onBack: () => void;
   messages: {
-    title: string; description: string; button: string; processing: string;
+    title: string; description: string; button: string; convertLabel?: string; processing: string;
     success: string; dragText: string; orText: string; browseText: string;
     maxSize: string; originalSize?: string; compressedSize?: string;
     reduction?: string; fileCount?: string; moveUp?: string; moveDown?: string; remove?: string;
@@ -201,7 +201,7 @@ export default function FileDropzone({ tool, onBack, messages, commonMessages, e
           ) : (
             <>
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-              {messages.button}
+              {messages.convertLabel || messages.button}
             </>
           )}
         </button>

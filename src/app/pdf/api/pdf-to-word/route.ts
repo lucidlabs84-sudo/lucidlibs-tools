@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createRequire } from "module";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
+
+const require = createRequire(import.meta.url);
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,33 +13,14 @@ export async function POST(req: NextRequest) {
     if (!file) return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
 
     const arrayBuffer = await file.arrayBuffer();
-    const typedArray = new Uint8Array(arrayBuffer);
+    const buffer = Buffer.from(arrayBuffer);
 
-    // Use legacy build for Node.js compatibility
-    const pdfjs = await import("pdfjs-dist/legacy/build/pdf.min.mjs");
+    // Use internal module directly to bypass pdf-parse's self-test in index.js
+    const pdfParse = require("pdf-parse/lib/pdf-parse.js");
+    const data = await pdfParse(buffer);
 
-    const doc = await pdfjs.getDocument({
-      data: typedArray,
-      disableWorker: true,
-      useWorkerFetch: false,
-      useSystemFonts: true,
-    } as Record<string, unknown>).promise;
-
-    const lines: string[] = [];
-    for (let i = 1; i <= doc.numPages; i++) {
-      const page = await doc.getPage(i);
-      const content = await page.getTextContent();
-      const pageText = content.items
-        .map((item: unknown) => {
-          const it = item as Record<string, unknown>;
-          return typeof it.str === "string" ? it.str : "";
-        })
-        .join(" ");
-      if (pageText.trim()) lines.push(pageText.trim());
-    }
-
-    const extractedText = lines.join("\n\n");
-    if (!extractedText) {
+    const text = (data as { text?: string }).text?.trim();
+    if (!text) {
       return NextResponse.json({ error: "No readable text found in this PDF" }, { status: 422 });
     }
 
@@ -45,7 +29,7 @@ export async function POST(req: NextRequest) {
 <head><meta charset="utf-8"><title>${escapeHtml(file.name)}</title>
 <style>body{font-family:'Times New Roman',serif;font-size:12pt;line-height:1.5;padding:2cm}p{margin:0 0 6pt}</style>
 </head><body>
-${extractedText.split("\n").map(l => l.trim() ? `<p>${escapeHtml(l)}</p>` : "<br/>").join("\n")}
+${text.split("\n").map((l: string) => l.trim() ? `<p>${escapeHtml(l)}</p>` : "<br/>").join("\n")}
 </body></html>`;
 
     return new NextResponse(wordContent, {
