@@ -76,7 +76,7 @@ export default function FileDropzone({ tool, onBack, messages, commonMessages, e
 
   return (
     <div>
-      <button onClick={onBack} className="flex items-center gap-1 text-sm text-slate-500 hover:text-amber-600 mb-6 transition-colors">
+      <button onClick={onBack} disabled={processing} className="flex items-center gap-1 text-sm text-slate-500 hover:text-amber-600 mb-6 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
         {commonMessages.back}
       </button>
@@ -111,15 +111,19 @@ export default function FileDropzone({ tool, onBack, messages, commonMessages, e
         <>
           {/* Dropzone — changes appearance when files are selected */}
           <div
-            className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${
-              files.length > 0
-                ? "border-amber-400 bg-amber-50/50"
+            className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors ${
+              processing
+                ? "border-amber-300 bg-amber-50/30 cursor-default"
+                : files.length > 0
+                ? "border-amber-400 bg-amber-50/50 cursor-pointer"
                 : dragOver
-                  ? "border-amber-400 bg-amber-50"
-                  : "border-slate-200 bg-white hover:border-amber-300"
+                  ? "border-amber-400 bg-amber-50 cursor-pointer"
+                  : "border-slate-200 bg-white hover:border-amber-300 cursor-pointer"
             }`}
-            onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave}
-            onClick={() => { if (files.length === 0 || multiple) fileInputRef.current?.click(); }}
+            onDrop={processing ? undefined : handleDrop}
+            onDragOver={processing ? undefined : handleDragOver}
+            onDragLeave={processing ? undefined : handleDragLeave}
+            onClick={() => { if (!processing && (files.length === 0 || multiple)) fileInputRef.current?.click(); }}
           >
             {files.length === 0 ? (
               <>
@@ -144,12 +148,14 @@ export default function FileDropzone({ tool, onBack, messages, commonMessages, e
                     {messages.fileCount?.replace("{count}", String(files.length)) || `${files.length} files selected`}
                   </span>
                 </div>
-                <span className="inline-block bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-lg text-sm font-medium hover:border-amber-300 transition-colors">
-                  + Add more files
-                </span>
+                {!processing && (
+                  <span className="inline-block bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-lg text-sm font-medium hover:border-amber-300 transition-colors">
+                    + Add more files
+                  </span>
+                )}
               </div>
             ) : (
-              /* Single file: show filename + change option */
+              /* Single file: show filename */
               <div className="text-center" onClick={(e) => e.stopPropagation()}>
                 <svg className="w-10 h-10 mx-auto mb-2" viewBox="0 0 48 48" fill="none">
                   <rect x="6" y="4" width="36" height="40" rx="3" fill="#EF4444" />
@@ -161,10 +167,12 @@ export default function FileDropzone({ tool, onBack, messages, commonMessages, e
                 <p className="text-xs mb-3" style={{ color: "oklch(0.5 0.005 260)" }}>
                   {formatBytes(files[0].size)}
                 </p>
-                <span className="inline-block bg-white border border-slate-200 text-slate-600 px-3 py-1.5 rounded-lg text-xs font-medium hover:border-amber-300 transition-colors cursor-pointer"
-                  onClick={() => fileInputRef.current?.click()}>
-                  Change file
-                </span>
+                {!processing && (
+                  <span className="inline-block bg-white border border-slate-200 text-slate-600 px-3 py-1.5 rounded-lg text-xs font-medium hover:border-amber-300 transition-colors cursor-pointer"
+                    onClick={() => fileInputRef.current?.click()}>
+                    Change file
+                  </span>
+                )}
               </div>
             )}
           </div>
@@ -178,15 +186,19 @@ export default function FileDropzone({ tool, onBack, messages, commonMessages, e
                   <span className="text-xs text-slate-400 w-6">{i + 1}</span>
                   <span className="text-sm flex-1 truncate">{f.name}</span>
                   <span className="text-xs text-slate-400">{formatBytes(f.size)}</span>
-                  <button onClick={() => moveFile(i, -1)} disabled={i === 0} className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30" title={messages.moveUp}>
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg>
-                  </button>
-                  <button onClick={() => moveFile(i, 1)} disabled={i === files.length - 1} className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30" title={messages.moveDown}>
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                  </button>
-                  <button onClick={() => removeFile(i)} className="p-1 text-red-400 hover:text-red-600" title={messages.remove}>
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                  </button>
+                  {!processing && (
+                    <>
+                      <button onClick={() => moveFile(i, -1)} disabled={i === 0} className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30" title={messages.moveUp}>
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg>
+                      </button>
+                      <button onClick={() => moveFile(i, 1)} disabled={i === files.length - 1} className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30" title={messages.moveDown}>
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                      </button>
+                      <button onClick={() => removeFile(i)} className="p-1 text-red-400 hover:text-red-600" title={messages.remove}>
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                      </button>
+                    </>
+                  )}
                 </div>
               ))}
             </div>
