@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useRef, useCallback, type DragEvent, type ChangeEvent } from "react";
-
-type Lang = "pt" | "tr" | "th" | "vn" | "en";
+import { useState, useRef, useCallback, useEffect, type DragEvent, type ChangeEvent } from "react";
+import { detectLang, syncUrlLang, type Lang } from "@/lib/i18n";
 
 const msgs: Record<string, any> = {
   pt: { title: "Comprimir Imagem Online Grátis", subtitle: "Reduza o tamanho de imagens JPG, PNG, WebP sem perder qualidade.", dragTitle: "Arraste e solte imagens aqui", dragSub: "ou clique para selecionar — Suporta JPG, PNG, WebP", maxSize: "Máximo 50MB por imagem", quality: "Qualidade", format: "Formato", formatAuto: "Manter original", compress: "Comprimir Todas", downloadAll: "Baixar Todas (.zip)", original: "Original", compressed: "Comprimido", saved: "Redução", compressing: "Comprimindo...", error: "Erro", clear: "Limpar", noFiles: "Nenhuma imagem ainda." },
@@ -15,27 +14,22 @@ const msgs: Record<string, any> = {
 type OutputFormat = "auto" | "jpeg" | "png" | "webp";
 type ImageFile = { id: string; file: File; preview: string; originalSize: number; compressedSize?: number; status: "idle" | "compressing" | "done" | "error"; compressedUrl?: string };
 
-function detectLang(): Lang {
-  if (typeof window === "undefined") return "pt";
-  const param = new URLSearchParams(window.location.search).get("lang");
-  if (param && ["pt", "tr", "th", "vn", "en"].includes(param)) return param as Lang;
-  const nav = navigator.language.toLowerCase();
-  if (nav.startsWith("pt")) return "pt"; if (nav.startsWith("tr")) return "tr";
-  if (nav.startsWith("th")) return "th"; if (nav.startsWith("vi")) return "vn";
-  return "pt";
-}
-
 const fmtBytes = (b: number) => b < 1024 ? `${b} B` : b < 1024 * 1024 ? `${(b / 1024).toFixed(1)} KB` : `${(b / (1024 * 1024)).toFixed(1)} MB`;
 
 export default function ImgPage() {
-  const [lang, setLang] = useState<Lang>(detectLang());
+  const [lang, setLang] = useState<Lang>("en");
   const [images, setImages] = useState<ImageFile[]>([]);
   const [quality, setQuality] = useState(80);
   const [format, setFormat] = useState<OutputFormat>("auto");
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const t = msgs[lang] || msgs.pt;
-  const switchLang = (l: Lang) => { setLang(l); const url = new URL(window.location.href); url.searchParams.set("lang", l); window.history.replaceState({}, "", url.toString()); };
+  const t = msgs[lang] || msgs.en;
+
+  useEffect(() => {
+    const detected = detectLang();
+    setLang(detected);
+    syncUrlLang(detected);
+  }, []);
 
   const addImages = useCallback((incoming: FileList | null) => {
     if (!incoming) return;
@@ -90,13 +84,6 @@ export default function ImgPage() {
   return (
     <div className="flex-1"><main className="max-w-4xl mx-auto px-4 py-10">
       <div className="text-center mb-8">
-        <div className="flex justify-center gap-2 mb-4">
-          {(["pt", "tr", "th", "vn", "en"] as Lang[]).map((l) => (
-            <button key={l} onClick={() => switchLang(l)} className={`px-3 py-1 text-sm rounded-lg font-medium ${l === lang ? "bg-amber-500 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}>
-              {l === "pt" ? "🇧🇷" : l === "tr" ? "🇹🇷" : l === "th" ? "🇹🇭" : l === "vn" ? "🇻🇳" : "🇺🇸"} {l.toUpperCase()}
-            </button>
-          ))}
-        </div>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">{t.title}</h1>
         <p className="text-slate-500">{t.subtitle}</p>
       </div>

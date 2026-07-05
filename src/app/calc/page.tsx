@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
-
-type Lang = "pt" | "tr" | "th" | "vn" | "en";
+import { useState, useEffect } from "react";
+import { detectLang, syncUrlLang, type Lang } from "@/lib/i18n";
 
 const labels: Record<string, any> = {
   pt: { title: "Calculadora Online Grátis", subtitle: "Porcentagem, juros compostos, regra de três, gorjeta e mais.", percentage: "Porcentagem", percentageDesc: "Calcule porcentagens rapidamente.", compound: "Juros Compostos", compoundDesc: "Calcule o montante com juros compostos.", rule3: "Regra de Três", rule3Desc: "Calcule a quarta proporcional.", tip: "Gorjeta / Divisão", tipDesc: "Calcule gorjeta e divida a conta.", discount: "Desconto", discountDesc: "Calcule preço com desconto.", value: "Valor", percent: "Porcentagem (%)", capital: "Capital Inicial", rate: "Taxa Mensal (%)", months: "Período (meses)", bill: "Valor da Conta", tipPct: "Gorjeta (%)", people: "Pessoas", price: "Preço Original", discountPct: "Desconto (%)", result: "Resultado" },
@@ -20,23 +19,18 @@ const calcs = [
   { id: "discount", fields: [{ key: "price", type: "number" }, { key: "discount", type: "number" }], calc: (v: any) => { const p=+v.price||0,d=+v.discount||0; return `Preço final: ${(p*(1-d/100)).toFixed(2)}`; } },
 ];
 
-function detectLang(): Lang {
-  if (typeof window === "undefined") return "pt";
-  const param = new URLSearchParams(window.location.search).get("lang");
-  if (param && ["pt", "tr", "th", "vn", "en"].includes(param)) return param as Lang;
-  const nav = navigator.language.toLowerCase();
-  if (nav.startsWith("pt")) return "pt"; if (nav.startsWith("tr")) return "tr";
-  if (nav.startsWith("th")) return "th"; if (nav.startsWith("vi")) return "vn";
-  return "pt";
-}
-
 export default function CalcPage() {
-  const [lang, setLang] = useState<Lang>(detectLang());
+  const [lang, setLang] = useState<Lang>("en");
   const [active, setActive] = useState("percentage");
   const [values, setValues] = useState<Record<string, Record<string, string>>>({});
-  const t = labels[lang] || labels.pt;
+  const t = labels[lang] || labels.en;
 
-  const switchLang = (l: Lang) => { setLang(l); const url = new URL(window.location.href); url.searchParams.set("lang", l); window.history.replaceState({}, "", url.toString()); };
+  useEffect(() => {
+    const detected = detectLang();
+    setLang(detected);
+    syncUrlLang(detected);
+  }, []);
+
   const getVal = (calcId: string, key: string) => (values[calcId] || {})[key] || "";
   const setVal = (calcId: string, key: string, val: string) => setValues(prev => ({ ...prev, [calcId]: { ...(prev[calcId] || {}), [key]: val } }));
   const activeCalc = calcs.find(c => c.id === active)!;
@@ -45,13 +39,6 @@ export default function CalcPage() {
   return (
     <div className="flex-1"><main className="max-w-4xl mx-auto px-4 py-10">
       <div className="text-center mb-8">
-        <div className="flex justify-center gap-2 mb-4">
-          {(["pt", "tr", "th", "vn", "en"] as Lang[]).map((l) => (
-            <button key={l} onClick={() => switchLang(l)} className={`px-3 py-1 text-sm rounded-lg font-medium ${l === lang ? "bg-amber-500 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}>
-              {l === "pt" ? "🇧🇷" : l === "tr" ? "🇹🇷" : l === "th" ? "🇹🇭" : l === "vn" ? "🇻🇳" : "🇺🇸"} {l.toUpperCase()}
-            </button>
-          ))}
-        </div>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">{t.title}</h1>
         <p className="text-slate-500">{t.subtitle}</p>
       </div>

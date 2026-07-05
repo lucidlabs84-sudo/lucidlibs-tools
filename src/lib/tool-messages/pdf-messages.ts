@@ -152,6 +152,49 @@ export const pdfVn = {
   },
 };
 
+export const pdfEn = {
+  siteTitle: "PDF Tools Online — Free & Easy",
+  siteDescription: "Convert PDF to Word, compress and merge PDF files online for free.",
+  nav: { home: "Home", tools: "Tools" },
+  hero: {
+    title: "PDF Tools Online",
+    subtitle: "Convert, compress, and merge PDF files 100% free. Browser-based processing, your files never leave your device.",
+    cta: "Get Started",
+  },
+  tools: {
+    pdfToWord: {
+      title: "PDF to Word",
+      description: "Convert PDF files to editable Word (.doc) format, preserving text formatting.",
+      button: "Choose PDF File", processing: "Converting...", success: "Conversion complete!",
+      dragText: "Drag and drop PDF here", orText: "or", browseText: "Browse files", maxSize: "Max 25MB",
+    },
+    compress: {
+      title: "Compress PDF",
+      description: "Reduce PDF file size while maintaining quality.",
+      button: "Choose PDF File", processing: "Compressing...", success: "Compression complete!",
+      dragText: "Drag and drop PDF here", orText: "or", browseText: "Browse files", maxSize: "Max 25MB",
+      originalSize: "Original size", compressedSize: "Compressed size", reduction: "Reduction",
+    },
+    merge: {
+      title: "Merge PDF",
+      description: "Combine multiple PDF files into a single document.",
+      button: "Choose PDF Files", processing: "Merging...", success: "Merge complete!",
+      dragText: "Drag and drop PDFs here", orText: "or", browseText: "Browse files", maxSize: "Max 25MB per file",
+      fileCount: "{count} files selected", moveUp: "Move up", moveDown: "Move down", remove: "Remove",
+    },
+  },
+  seo: {
+    homeTitle: "Free Online PDF Tools | Convert, Compress, Merge",
+    homeDesc: "Convert PDF to Word, compress and merge PDF files online for free.",
+    pdfToWordTitle: "Free PDF to Word Converter — PDFTools",
+    pdfToWordDesc: "Convert PDF to Word online for free.",
+    compressTitle: "Free PDF Compressor Online — PDFTools",
+    compressDesc: "Compress PDF files online for free.",
+    mergeTitle: "Free PDF Merger Online — PDFTools",
+    mergeDesc: "Merge multiple PDF files into one online for free.",
+  },
+};
+
 const common = {
   download: "Baixar", tryAgain: "Tentar Novamente", error: "Ocorreu um erro.", back: "Voltar",
 };
@@ -164,12 +207,12 @@ const commonDict: Record<string, typeof common> = {
   en: { download: "Download", tryAgain: "Try Again", error: "An error occurred.", back: "Back" },
 };
 
-const pdfDict: Record<string, typeof pdfPt> = { pt: pdfPt, tr: pdfTr, th: pdfTh, vn: pdfVn, en: pdfPt };
+const pdfDict: Record<string, typeof pdfPt> = { pt: pdfPt, tr: pdfTr, th: pdfTh, vn: pdfVn, en: pdfEn };
 
 export function getPdfMessages(lang: string) {
-  return pdfDict[lang] ?? pdfDict.pt;
+  return pdfDict[lang] ?? pdfDict.en;
 }
 
 export function getCommonMessages(lang: string) {
-  return commonDict[lang] ?? commonDict.pt;
+  return commonDict[lang] ?? commonDict.en;
 }

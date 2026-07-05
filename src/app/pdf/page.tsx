@@ -3,21 +3,9 @@
 import { useState, useEffect } from "react";
 import FileDropzone from "@/components/tools/FileDropzone";
 import { getPdfMessages, getCommonMessages } from "@/lib/tool-messages/pdf-messages";
+import { detectLang, syncUrlLang, type Lang } from "@/lib/i18n";
 
-type Lang = "pt" | "tr" | "th" | "vn" | "en";
 type Tool = "pdf-to-word" | "compress" | "merge" | null;
-
-function detectLang(): Lang {
-  if (typeof window === "undefined") return "pt";
-  const param = new URLSearchParams(window.location.search).get("lang");
-  if (param && ["pt", "tr", "th", "vn", "en"].includes(param)) return param as Lang;
-  const nav = navigator.language.toLowerCase();
-  if (nav.startsWith("pt")) return "pt";
-  if (nav.startsWith("tr")) return "tr";
-  if (nav.startsWith("th")) return "th";
-  if (nav.startsWith("vi")) return "vn";
-  return "pt";
-}
 
 function ToolLabel(t: Tool, lang: Lang) {
   const msgs = getPdfMessages(lang);
@@ -26,23 +14,17 @@ function ToolLabel(t: Tool, lang: Lang) {
 }
 
 export default function PdfToolsPage() {
-  const [lang, setLang] = useState<Lang>("pt");
+  const [lang, setLang] = useState<Lang>("en");
   const [activeTool, setActiveTool] = useState<Tool>(null);
 
-  useEffect(() => { setLang(detectLang()); }, []);
+  useEffect(() => {
+    const detected = detectLang();
+    setLang(detected);
+    syncUrlLang(detected);
+  }, []);
 
   const msgs = getPdfMessages(lang);
   const cm = getCommonMessages(lang);
-
-  function switchLang(l: Lang) {
-    setLang(l);
-    setActiveTool(null);
-    if (typeof window !== "undefined") {
-      const url = new URL(window.location.href);
-      url.searchParams.set("lang", l);
-      window.history.replaceState({}, "", url.toString());
-    }
-  }
 
   const renderTool = () => {
     switch (activeTool) {
@@ -64,14 +46,6 @@ export default function PdfToolsPage() {
         ) : (
           <>
             <div className="text-center mb-12">
-              <div className="flex justify-center gap-2 mb-4">
-                {(["pt", "tr", "th", "vn", "en"] as Lang[]).map((l) => (
-                  <button key={l} onClick={() => switchLang(l)}
-                    className={`px-3 py-1 text-sm rounded-lg font-medium transition-colors ${l === lang ? "bg-amber-500 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}>
-                    {l === "pt" ? "🇧🇷" : l === "tr" ? "🇹🇷" : l === "th" ? "🇹🇭" : l === "vn" ? "🇻🇳" : "🇺🇸"} {l.toUpperCase()}
-                  </button>
-                ))}
-              </div>
               <h1 className="text-3xl font-bold text-gray-900 mb-3">{msgs.hero.title}</h1>
               <p className="text-slate-500 max-w-2xl mx-auto">{msgs.hero.subtitle}</p>
             </div>

@@ -74,5 +74,24 @@ export const bmiVn = {
   },
 };
 
-const dict: Record<string, typeof bmiPt> = { pt: bmiPt, tr: bmiTr, th: bmiTh, vn: bmiVn, en: bmiPt };
-export function getBmiMessages(lang: string) { return dict[lang] ?? dict.pt; }
+export const bmiEn = {
+  hero: { title: "BMI Calculator", subtitle: "Free online tool to calculate Body Mass Index (BMI). For adults and children, classified by WHO standards." },
+  form: { gender: "Gender", male: "Male", female: "Female", age: "Age", height: "Height (cm)", weight: "Weight (kg)", calculate: "Calculate BMI", mode: "Mode", adult: "Adult", child: "Child (2-19 yrs)" },
+  result: { bmi: "Your BMI", category: "Classification", idealWeight: "Ideal weight",
+    underweight: "Underweight", normal: "Normal", overweight: "Overweight",
+    obese1: "Obesity Class 1", obese2: "Obesity Class 2", obese3: "Obesity Class 3",
+    advice: "Health Recommendation",
+    advices: {
+      underweight: "You are underweight. Increase protein and nutrient intake.",
+      normal: "Congratulations! Your weight is in the ideal range.",
+      overweight: "You are overweight. Reduce calories and exercise 30 min/day.",
+      obese1: "Obesity Class 1. Consult a doctor and plan weight loss.",
+      obese2: "Obesity Class 2. Weight loss needed. Find a nutritionist.",
+      obese3: "Obesity Class 3 (severe). High risk. See a doctor immediately.",
+    },
+    noResult: "Enter data and click \"Calculate BMI\" to see results.",
+  },
+};
+
+const dict: Record<string, typeof bmiPt> = { pt: bmiPt, tr: bmiTr, th: bmiTh, vn: bmiVn, en: bmiEn };
+export function getBmiMessages(lang: string) { return dict[lang] ?? dict.en; }

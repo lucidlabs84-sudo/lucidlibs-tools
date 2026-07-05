@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import QRCodeLib from "qrcode";
+import { detectLang, syncUrlLang, type Lang } from "@/lib/i18n";
 
-type Lang = "pt" | "tr" | "th" | "vn" | "en";
 type QrType = "url" | "text" | "email" | "phone" | "wifi" | "vcard";
 
 const messages: Record<string, any> = {
@@ -16,18 +16,8 @@ const messages: Record<string, any> = {
 
 const typeKeys: QrType[] = ["url", "text", "email", "phone", "wifi", "vcard"];
 
-function detectLang(): Lang {
-  if (typeof window === "undefined") return "pt";
-  const param = new URLSearchParams(window.location.search).get("lang");
-  if (param && ["pt", "tr", "th", "vn", "en"].includes(param)) return param as Lang;
-  const nav = navigator.language.toLowerCase();
-  if (nav.startsWith("pt")) return "pt"; if (nav.startsWith("tr")) return "tr";
-  if (nav.startsWith("th")) return "th"; if (nav.startsWith("vi")) return "vn";
-  return "pt";
-}
-
 export default function QrPage() {
-  const [lang, setLang] = useState<Lang>(detectLang());
+  const [lang, setLang] = useState<Lang>("en");
   const [qrType, setQrType] = useState<QrType>("url");
   const [input, setInput] = useState("");
   const [vcard, setVcard] = useState({ name: "", org: "", phone: "", email: "" });
@@ -38,7 +28,7 @@ export default function QrPage() {
   const [margin, setMargin] = useState(1);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
 
-  const t = messages[lang] || messages.pt;
+  const t = messages[lang] || messages.en;
 
   const buildContent = () => {
     switch (qrType) {
@@ -60,19 +50,17 @@ export default function QrPage() {
   useEffect(() => { if (qrType !== "vcard") generate(); }, [qrType, input, wifiPass, fgColor, bgColor, size, margin]);
 
   const download = () => { if (!qrDataUrl) return; const a = document.createElement("a"); a.href = qrDataUrl; a.download = `qrcode-${qrType}.png`; a.click(); };
-  const switchLang = (l: Lang) => { setLang(l); const url = new URL(window.location.href); url.searchParams.set("lang", l); window.history.replaceState({}, "", url.toString()); };
+
+  useEffect(() => {
+    const detected = detectLang();
+    setLang(detected);
+    syncUrlLang(detected);
+  }, []);
 
   return (
     <div className="flex-1">
       <main className="max-w-3xl mx-auto px-4 py-10">
         <div className="text-center mb-8">
-          <div className="flex justify-center gap-2 mb-4">
-            {(["pt", "tr", "th", "vn", "en"] as Lang[]).map((l) => (
-              <button key={l} onClick={() => switchLang(l)} className={`px-3 py-1 text-sm rounded-lg font-medium ${l === lang ? "bg-amber-500 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}>
-                {l === "pt" ? "🇧🇷" : l === "tr" ? "🇹🇷" : l === "th" ? "🇹🇭" : l === "vn" ? "🇻🇳" : "🇺🇸"} {l.toUpperCase()}
-              </button>
-            ))}
-          </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{t.title}</h1>
           <p className="text-slate-500">{t.subtitle}</p>
         </div>

@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { bmiPt, bmiTr, bmiTh, bmiVn, getBmiMessages } from "@/lib/tool-messages/bmi-messages";
+import { useState, useEffect } from "react";
+import { getBmiMessages } from "@/lib/tool-messages/bmi-messages";
+import { detectLang, syncUrlLang, type Lang } from "@/lib/i18n";
 
 type Category = "underweight" | "normal" | "overweight" | "obese1" | "obese2" | "obese3";
 type Mode = "adult" | "child";
-type Lang = "pt" | "tr" | "th" | "vn" | "en";
 
 const COLORS: Record<Category, string> = {
   underweight: "#3b82f6", normal: "#22c55e", overweight: "#eab308", obese1: "#f97316", obese2: "#ef4444", obese3: "#dc2626",
@@ -16,18 +16,8 @@ const ADULT_RANGES: { max: number; cat: Category }[] = [
   { max: 34.9, cat: "obese1" }, { max: 39.9, cat: "obese2" }, { max: Infinity, cat: "obese3" },
 ];
 
-function detectLang(): Lang {
-  if (typeof window === "undefined") return "pt";
-  const param = new URLSearchParams(window.location.search).get("lang");
-  if (param && ["pt", "tr", "th", "vn", "en"].includes(param)) return param as Lang;
-  const nav = navigator.language.toLowerCase();
-  if (nav.startsWith("pt")) return "pt"; if (nav.startsWith("tr")) return "tr";
-  if (nav.startsWith("th")) return "th"; if (nav.startsWith("vi")) return "vn";
-  return "pt";
-}
-
 export default function BmiPage() {
-  const [lang, setLang] = useState<Lang>(detectLang());
+  const [lang, setLang] = useState<Lang>("en");
   const [mode, setMode] = useState<Mode>("adult");
   const [gender, setGender] = useState<"male" | "female">("male");
   const [age, setAge] = useState("30");
@@ -35,9 +25,13 @@ export default function BmiPage() {
   const [weight, setWeight] = useState("70");
   const [result, setResult] = useState<{ bmi: number; category: Category; idealMin: number; idealMax: number } | null>(null);
 
-  const t = getBmiMessages(lang);
+  useEffect(() => {
+    const detected = detectLang();
+    setLang(detected);
+    syncUrlLang(detected);
+  }, []);
 
-  const switchLang = (l: Lang) => { setLang(l); const url = new URL(window.location.href); url.searchParams.set("lang", l); window.history.replaceState({}, "", url.toString()); };
+  const t = getBmiMessages(lang);
 
   const calculate = () => {
     const h = parseFloat(height) / 100;
@@ -54,14 +48,6 @@ export default function BmiPage() {
     <div className="flex-1">
       <main className="max-w-xl mx-auto px-4 py-10">
         <div className="text-center mb-8">
-          <div className="flex justify-center gap-2 mb-4">
-            {(["pt", "tr", "th", "vn", "en"] as Lang[]).map((l) => (
-              <button key={l} onClick={() => switchLang(l)}
-                className={`px-3 py-1 text-sm rounded-lg font-medium transition-colors ${l === lang ? "bg-amber-500 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}>
-                {l === "pt" ? "🇧🇷" : l === "tr" ? "🇹🇷" : l === "th" ? "🇹🇭" : l === "vn" ? "🇻🇳" : "🇺🇸"} {l.toUpperCase()}
-              </button>
-            ))}
-          </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{t.hero.title}</h1>
           <p className="text-slate-500">{t.hero.subtitle}</p>
         </div>
