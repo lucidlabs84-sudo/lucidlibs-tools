@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { siteName, type Lang } from "@/lib/i18n";
-
-const VALID_LANGS: Lang[] = ["pt", "tr", "th", "vn", "en"];
+import { siteName, VALID_LANGS, type Lang } from "@/lib/i18n";
+import SiteHeader from "@/components/SiteHeader";
 
 export async function generateMetadata({
   params,
@@ -26,10 +25,20 @@ export async function generateMetadata({
   };
 }
 
-export default function LangLayout({
+export default async function LangLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{ lang: string }>;
 }) {
-  return <>{children}</>;
+  const { lang } = await params;
+  const l = (VALID_LANGS.includes(lang as Lang) ? lang : "en") as Lang;
+
+  return (
+    <>
+      <SiteHeader lang={l} />
+      {children}
+    </>
+  );
 }

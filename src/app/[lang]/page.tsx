@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
-import { type Lang } from "@/lib/i18n";
+import { VALID_LANGS, type Lang } from "@/lib/i18n";
 
 const tools = [
   { href: "/pdf", key: "pdf", color: "bg-red-500", icon: (<svg viewBox="0 0 48 48" fill="none" className="w-12 h-12"><rect x="6" y="4" width="36" height="40" rx="3" fill="#EF4444" /><text x="24" y="30" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">PDF</text></svg>) },
@@ -23,22 +22,11 @@ const homeMsgs: HomeMsgs = {
   en: { heroTitle: "Free Online Tools", heroSub: "Simple, free, and private. All tools run in your browser — no file uploads to servers, no sign-up required.", footer1: "Powered by", footer2: "— Free tools, no strings attached.", tools: { pdf: { title: "PDF Tools", desc: "Convert PDF to Word, compress PDF, merge PDFs — all free, all in your browser." }, img: { title: "Image Compressor", desc: "Compress JPG, PNG, WebP images without quality loss. Batch processing support." }, bmi: { title: "BMI Calculator", desc: "Calculate your Body Mass Index with WHO classification. For adults and children." }, qrcode: { title: "QR Code Generator", desc: "Generate QR codes for URLs, text, email, phone, WiFi, and vCard. Customize colors." }, calc: { title: "Calculator", desc: "Percentage, compound interest, rule of three, tip, discount — all in one." } } },
 };
 
-const VALID_LANGS: Lang[] = ["pt", "tr", "th", "vn", "en"];
-const flags: Record<Lang, string> = { pt: "🇧🇷", tr: "🇹🇷", th: "🇹🇭", vn: "🇻🇳", en: "🇺🇸" };
-const langNames: Record<Lang, string> = { pt: "Português", tr: "Türkçe", th: "ไทย", vn: "Tiếng Việt", en: "English" };
-
 export default function LangHome() {
   const params = useParams();
-  const router = useRouter();
   const raw = params.lang as string;
   const lang: Lang = VALID_LANGS.includes(raw as Lang) ? (raw as Lang) : "en";
-  const [showLangPicker, setShowLangPicker] = useState(false);
   const m = homeMsgs[lang] || homeMsgs.en;
-
-  const switchLang = (l: Lang) => {
-    router.push(`/${l}`);
-    setShowLangPicker(false);
-  };
 
   return (
     <main className="max-w-5xl mx-auto px-4 py-16">
@@ -63,21 +51,6 @@ export default function LangHome() {
 
       <footer className="mt-20 pt-8 border-t border-slate-200 text-center text-sm text-slate-400">
         <p>{m.footer1} <a href="https://lucidlibs.dev" className="text-amber-600 hover:underline">LucidLibs</a> {m.footer2}</p>
-        <div className="relative inline-block mt-3">
-          <button onClick={() => setShowLangPicker(!showLangPicker)} className="text-xs text-slate-400 hover:text-slate-600 transition-colors">
-            {flags[lang]} {langNames[lang]} ▾
-          </button>
-          {showLangPicker && (
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-50">
-              {VALID_LANGS.map((l) => (
-                <button key={l} onClick={() => switchLang(l)}
-                  className={`block w-full text-left px-4 py-1.5 text-xs hover:bg-slate-50 ${l === lang ? "font-semibold text-amber-600" : "text-slate-600"}`}>
-                  {flags[l]} {langNames[l]}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
       </footer>
     </main>
   );

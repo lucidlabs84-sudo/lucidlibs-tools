@@ -1,6 +1,9 @@
 export type Lang = "pt" | "tr" | "th" | "vn" | "en";
 
-const VALID_LANGS: Lang[] = ["pt", "tr", "th", "vn", "en"];
+export const VALID_LANGS: Lang[] = ["pt", "tr", "th", "vn", "en"];
+
+export const LANG_FLAGS: Record<Lang, string> = { pt: "🇧🇷", tr: "🇹🇷", th: "🇹🇭", vn: "🇻🇳", en: "🇺🇸" };
+export const LANG_NAMES: Record<Lang, string> = { pt: "Português", tr: "Türkçe", th: "ไทย", vn: "Tiếng Việt", en: "English" };
 
 const LANG_COOKIE = "tl_lang";
 
