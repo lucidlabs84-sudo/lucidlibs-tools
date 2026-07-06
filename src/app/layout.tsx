@@ -1,11 +1,13 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import InstallPrompt from "@/components/InstallPrompt";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Free Online Tools — LucidLibs",
   description:
     "Free online tools: PDF converter, image compressor, BMI calculator, QR code generator, and more. No sign-up, no ads.",
+  manifest: "/manifest.json",
   openGraph: {
     title: "Free Online Tools — LucidLibs",
     description:
@@ -16,6 +18,13 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#111111" },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -24,6 +33,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <head>
+        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#111111" media="(prefers-color-scheme: dark)" />
         <Script
           async
           src="https://www.googletagmanager.com/gtag/js?id=G-89197XEV14"
@@ -35,7 +46,11 @@ export default function RootLayout({
       </head>
       <body className="min-h-full">
         {children}
+        <InstallPrompt />
         <Script src="/_vercel/insights/script.js" strategy="afterInteractive" />
+        <Script id="sw-register" strategy="afterInteractive">
+          {`if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}`}
+        </Script>
       </body>
     </html>
   );
