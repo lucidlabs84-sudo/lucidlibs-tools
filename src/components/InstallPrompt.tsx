@@ -18,7 +18,6 @@ export default function InstallPrompt() {
 
     const visits = parseInt(localStorage.getItem("pwa-visits") || "0", 10) + 1;
     localStorage.setItem("pwa-visits", String(visits));
-    if (visits < 3) return;
 
     const handler = (e: Event) => {
       e.preventDefault();
