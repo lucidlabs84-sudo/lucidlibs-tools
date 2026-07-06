@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { siteName, VALID_LANGS, type Lang } from "@/lib/i18n";
+import { HREFLANG } from "@/lib/tool-meta";
 import SiteHeader from "@/components/SiteHeader";
 
 export async function generateMetadata({
@@ -16,7 +17,7 @@ export async function generateMetadata({
       "Free online tools: PDF converter, image compressor, BMI calculator, QR code generator, and more. No sign-up, no ads.",
     alternates: {
       languages: Object.fromEntries(
-        VALID_LANGS.map((code) => [code, `/${code}`])
+        VALID_LANGS.map((code) => [HREFLANG[code], `/${code}`])
       ),
     },
     other: {

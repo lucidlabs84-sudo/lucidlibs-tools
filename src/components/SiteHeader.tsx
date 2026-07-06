@@ -2,19 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { VALID_LANGS, LANG_FLAGS, LANG_NAMES, type Lang } from "@/lib/i18n";
 
 export default function SiteHeader({ lang }: { lang: Lang }) {
-  const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-
-  const switchLang = (l: Lang) => {
-    const rest = pathname.replace(/^\/(pt|tr|th|vn|en)(?=\/|$)/, "");
-    router.push(`/${l}${rest}`);
-    setOpen(false);
-  };
+  const rest = pathname.replace(/^\/(pt|tr|th|vn|en)(?=\/|$)/, "");
+  const hrefFor = (l: Lang) => `/${l}${rest}`;
 
   return (
     <header className="border-b border-slate-200 bg-white">
@@ -35,13 +30,14 @@ export default function SiteHeader({ lang }: { lang: Lang }) {
               <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
               <div className="absolute top-full right-0 mt-2 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-50 min-w-[140px]">
                 {VALID_LANGS.map((l) => (
-                  <button
+                  <Link
                     key={l}
-                    onClick={() => switchLang(l)}
+                    href={hrefFor(l)}
+                    onClick={() => setOpen(false)}
                     className={`block w-full text-left px-4 py-1.5 text-xs hover:bg-slate-50 ${l === lang ? "font-semibold text-amber-600" : "text-slate-600"}`}
                   >
                     {LANG_FLAGS[l]} {LANG_NAMES[l]}
-                  </button>
+                  </Link>
                 ))}
               </div>
             </>

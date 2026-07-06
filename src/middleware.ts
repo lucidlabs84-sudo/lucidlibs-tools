@@ -24,11 +24,13 @@ function detectLang(request: NextRequest): string {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Don't redirect API routes, static files, or _next
+  // Don't redirect API routes, static files, _next, or well-known crawler files
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/pdf/api") ||
-    pathname.match(/\.(ico|png|svg|jpg|jpeg|webp|js|css|json)$/)
+    pathname === "/robots.txt" ||
+    pathname === "/sitemap.xml" ||
+    pathname.match(/\.(ico|png|svg|jpg|jpeg|webp|js|css|json|txt|xml)$/)
   ) {
     return NextResponse.next();
   }
@@ -58,5 +60,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next|pdf/api|favicon\\.ico).*)"],
+  matcher: ["/((?!_next|pdf/api|favicon\\.ico|robots\\.txt|sitemap\\.xml).*)"],
 };
