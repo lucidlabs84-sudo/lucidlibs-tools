@@ -5,6 +5,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   manifest: "/manifest.json",
+  metadataBase: new URL("https://tools.lucidlibs.dev"),
 };
 
 export const viewport: Viewport = {

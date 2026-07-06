@@ -36,6 +36,14 @@ export async function generateMetadata({
       url: `https://tools.lucidlibs.dev/${l}`,
       siteName: "LucidLibs Tools",
       type: "website",
+      images: [
+        {
+          url: "https://tools.lucidlibs.dev/opengraph-image.png",
+          width: 1200,
+          height: 630,
+          alt: "LucidLibs Tools",
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
