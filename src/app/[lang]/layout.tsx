@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { siteName, VALID_LANGS, type Lang } from "@/lib/i18n";
 import { HREFLANG } from "@/lib/tool-meta";
 import SiteHeader from "@/components/SiteHeader";
+import BreadcrumbJsonLd from "@/components/BreadcrumbJsonLd";
 
 export async function generateMetadata({
   params,
@@ -71,6 +72,7 @@ export default async function LangLayout({
   return (
     <>
       <SiteHeader lang={l} />
+      <BreadcrumbJsonLd lang={l} />
       {children}
     </>
   );
